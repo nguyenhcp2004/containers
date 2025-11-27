@@ -1,5 +1,4 @@
-x-logging:
-  &default-logging
+x-logging: &default-logging
   driver: "json-file"
   options:
     max-size: "1m"
@@ -20,9 +19,9 @@ services:
       - GF_AUTH_DISABLE_LOGIN_FORM=true
       - GF_FEATURE_TOGGLES_ENABLE=accessControlOnCall lokiLogsDataplane
       - GF_INSTALL_PLUGINS=https://storage.googleapis.com/integration-artifacts/grafana-lokiexplore-app/grafana-lokiexplore-app-latest.zip;grafana-lokiexplore-app
-    networks:
-      - loki
     logging: *default-logging
+    # networks:
+    #   - loki
 
   loki:
     image: grafana/loki:3.0.0
@@ -32,22 +31,32 @@ services:
     command: -config.file=/etc/loki/loki.yaml
     volumes:
       - ./config/loki/loki.yaml:/etc/loki/loki.yaml
-    networks:
-      - loki
     logging: *default-logging
+    # networks:
+    #   - loki
 
-  promtail:
-    image:  grafana/promtail:3.0.0
-    container_name: promtail
+  # promtail:
+  #   image:  grafana/promtail:3.0.0
+  #   container_name: promtail
+  #   volumes:
+  #     - ./config/promtail/promtail.yaml:/etc/promtail/docker-config.yaml
+  #     - /var/lib/docker/containers:/var/lib/docker/containers:ro
+  #     - /var/run/docker.sock:/var/run/docker.sock
+  #   command: -config.file=/etc/promtail/docker-config.yaml
+  #   depends_on:
+  #     - loki
+  #   networks:
+  #     - loki
+  #   logging: *default-logging
+
+  prometheus:
+    image: prom/prometheus:v3.7.3
+    container_name: prometheus
+    ports:
+      - 9090:9090
     volumes:
-      - ./config/promtail/promtail.yaml:/etc/promtail/docker-config.yaml
-      - /var/lib/docker/containers:/var/lib/docker/containers:ro
-      - /var/run/docker.sock:/var/run/docker.sock
-    command: -config.file=/etc/promtail/docker-config.yaml
-    depends_on:
-      - loki
-    networks:
-      - loki
+      - ./config/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    command: --config.file=/etc/prometheus/prometheus.yml
     logging: *default-logging
 
 networks:
