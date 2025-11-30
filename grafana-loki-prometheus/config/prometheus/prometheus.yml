@@ -11,4 +11,4 @@ scrape_configs:
     scrape_interval: 10s
     # If we don't declare scrape_interval, it will use the default 15s
     static_configs:
-      - targets: ["nomas-colyseus:3002"] # Address and port of Nomas Colyseus
+      - targets: ["host.docker.internal:3002"] # Address and port of Nomas Colyseus
